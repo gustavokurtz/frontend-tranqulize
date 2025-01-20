@@ -22,7 +22,9 @@ export default function Chat() {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://159.65.44.185:3001/detectar", { text: message });
+      const res = await axios.post("http://159.65.44.185:3001/detectar", { text: message }, { 
+        headers: { "Content-Security-Policy": "upgrade-insecure-requests" }
+      });
 
       // Garantimos que a resposta seja um objeto antes de salvar
       const responseData = typeof res.data === "string" ? JSON.parse(res.data) : res.data;
