@@ -2,7 +2,6 @@
 import { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/Button";
 import { Textarea } from "../components/ui/textarea";
 import { Card } from "../components/ui/card";
