@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
-import https from "https"; // Importamos para ignorar erro de SSL autoassinado
 import { motion } from "framer-motion";
 import { Button } from "../components/ui/Button";
 import { Textarea } from "../components/ui/textarea";
@@ -13,12 +12,6 @@ interface ResponseData {
   response: string | { resposta: string; url?: string; exercicio?: string };
 }
 
-// 🔹 Criar instância do Axios que ignora SSL inválido
-const axiosInstance = axios.create({
-  baseURL: "https://159.65.44.185:3001", // URL do backend
-  httpsAgent: new https.Agent({ rejectUnauthorized: false }) // Ignorar erro de certificado SSL
-});
-
 export default function Chat() {
   const [message, setMessage] = useState("");
   const [responses, setResponses] = useState<ResponseData[]>([]);
@@ -29,8 +22,9 @@ export default function Chat() {
     setLoading(true);
 
     try {
-      // 🔹 Usamos a instância personalizada do Axios
-      const res = await axiosInstance.post("/detectar", { text: message });
+      
+
+      const res = await axios.post("https://www.atendezap.chat/detectar", { text: message });
 
       // Garantimos que a resposta seja um objeto antes de salvar
       const responseData = typeof res.data === "string" ? JSON.parse(res.data) : res.data;
@@ -73,47 +67,47 @@ export default function Chat() {
             {responses.length === 0 ? (
               <p className="text-gray-400 text-center">Digite o que está sentindo abaixo e receba uma ajuda.</p>
             ) : (
-              responses.map((item, index) => {
-                let responseData;
-
-                try {
-                  // Verifica se response é um objeto ou string e converte se necessário
-                  responseData =
-                    typeof item.response === "string"
-                      ? JSON.parse(item.response)
-                      : item.response;
-
-                  // Se responseData ainda for um objeto contendo "mensagem", pegamos apenas a resposta
-                  if (responseData && responseData.mensagem) {
-                    responseData = responseData.resposta; // Extraímos a resposta correta
-                  }
-                } catch (error) {
-                  console.error("Erro ao processar response:", error);
-                  responseData = "Erro ao carregar a resposta.";
-                }
-
-                return (
-                  <Card key={index} className="p-4 bg-gray-700 rounded-lg border border-gray-600">
-                    <p className="text-sm text-gray-400">Você:</p>
-                    <p className="text-lg font-medium">{item.text}</p>
-
-                    <p className="mt-2 text-sm text-gray-400">Resposta:</p>
-                    <p className="text-lg text-primary">{typeof responseData === "string" ? responseData : responseData.resposta}</p>
-
-                    {/* Exibir URL se existir */}
-                    {responseData.url && (
-                      <p className="mt-2 text-sm text-blue-400">
-                        <a href={responseData.url} target="_blank" rel="noopener noreferrer">
-                          Leia mais sobre essa técnica
-                        </a>
-                      </p>
-                    )}
-
-                    {/* Exibir exercício se existir */}
-                    {responseData.exercicio && (
-                      <p className="mt-2 text-sm text-green-400">{responseData.exercicio}</p>
-                    )}
-                  </Card>
+                responses.map((item, index) => {
+                    let responseData;
+                  
+                    try {
+                      // Verifica se response é um objeto ou string e converte se necessário
+                      responseData =
+                        typeof item.response === "string"
+                          ? JSON.parse(item.response)
+                          : item.response;
+                  
+                      // Se responseData ainda for um objeto contendo "mensagem", pegamos apenas a resposta
+                      if (responseData && responseData.mensagem) {
+                        responseData = responseData.resposta; // Extraímos a resposta correta
+                      }
+                    } catch (error) {
+                      console.error("Erro ao processar response:", error);
+                      responseData = "Erro ao carregar a resposta.";
+                    }
+                  
+                    return (
+                      <Card key={index} className="p-4 bg-gray-700 rounded-lg border border-gray-600">
+                        <p className="text-sm text-gray-400">Você:</p>
+                        <p className="text-lg font-medium">{item.text}</p>
+                  
+                        <p className="mt-2 text-sm text-gray-400">Resposta:</p>
+                        <p className="text-lg text-primary">{typeof responseData === "string" ? responseData : responseData.resposta}</p>
+                  
+                        {/* Exibir URL se existir */}
+                        {responseData.url && (
+                          <p className="mt-2 text-sm text-blue-400">
+                            <a href={responseData.url} target="_blank" rel="noopener noreferrer">
+                              Leia mais sobre essa técnica
+                            </a>
+                          </p>
+                        )}
+                  
+                        {/* Exibir exercício se existir */}
+                        {responseData.exercicio && (
+                          <p className="mt-2 text-sm text-green-400">{responseData.exercicio}</p>
+                        )}
+                      </Card>
                 );
               })
             )}
